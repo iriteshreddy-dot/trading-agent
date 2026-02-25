@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "angel-one-mcp": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["mcp-servers/angel-one-mcp/server.py"],
+      "env": {
+        "ANGEL_API_KEY": "your-angel-one-api-key",
+        "ANGEL_CLIENT_ID": "your-client-id",
+        "ANGEL_PASSWORD": "your-password",
+        "ANGEL_TOTP_SECRET": "your-totp-secret-from-qr",
+        "TRADING_PROJECT_ROOT": "."
+      }
+    },
+    "portfolio-db-mcp": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["mcp-servers/portfolio-db-mcp/server.py"],
+      "env": {
+        "TRADING_PROJECT_ROOT": "."
+      }
+    },
+    "news-sentiment-mcp": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["mcp-servers/news-sentiment-mcp/server.py"],
+      "env": {
+        "TRADING_PROJECT_ROOT": "."
+      }
+    }
+  }
+}

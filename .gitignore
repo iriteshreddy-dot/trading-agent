@@ -1,0 +1,32 @@
+# Data
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Claude Code local files
+.claude/settings.local.json
+
+# Don't commit credentials (they go in .mcp.json env which is gitignored)
+# IMPORTANT: .mcp.json contains API keys - DO NOT commit
+.mcp.json
