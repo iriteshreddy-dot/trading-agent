@@ -12,6 +12,18 @@ Team Lead (Orchestrator) — coordinates, synthesizes, decides
 └── Executor Agent — validates risk limits, places orders
 ```
 
+## Skills (loaded by agents via `.claude/skills/`)
+
+| Skill | Used By | Purpose |
+|-------|---------|---------|
+| `market-data` | Screener, Analyst | Fetch prices, candles, watchlist via Angel One SmartAPI |
+| `technical-analysis` | Screener | Compute RSI/MACD/EMA/BB/Volume, composite scoring (0-100) |
+| `sentiment-analysis` | Analyst | Score news sentiment (-100 to +100), detect red flags |
+| `portfolio-management` | Executor | Risk validation, position sizing, trade journaling |
+| `trading-orchestrator` | Lead | 7-phase cycle coordination, decision matrix, team spawning |
+
+Each skill has `SKILL.md` (instructions), `references/` (detailed docs), and `scripts/` (Python helpers).
+
 ## MCP Servers Available
 
 ### angel-one-mcp
@@ -63,22 +75,58 @@ These rules are enforced in MCP server CODE. You cannot override them:
 ## File Structure
 ```
 trading-agent/
-├── .claude/settings.json     # Agent teams enabled
-├── .mcp.json                 # MCP server config
-├── CLAUDE.md                 # This file
+├── .claude/
+│   ├── settings.json              # Agent teams enabled
+│   └── skills/                    # 5 agent skills
+│       ├── market-data/           # Prices, candles, watchlist
+│       │   ├── SKILL.md
+│       │   ├── references/        # nifty50-symbols.md, market-hours.md
+│       │   └── scripts/           # check_market_status.py, etc.
+│       ├── technical-analysis/    # RSI, MACD, EMA, BB, Volume
+│       │   ├── SKILL.md
+│       │   ├── references/        # indicators.md, indian-market-context.md
+│       │   └── scripts/           # compute_indicators.py, score_signal_strength.py, detect_patterns.py
+│       ├── sentiment-analysis/    # News scoring, red flags
+│       │   ├── SKILL.md
+│       │   ├── references/        # news-sources.md, sentiment-scoring.md
+│       │   └── scripts/           # score_sentiment.py, aggregate_sentiment.py
+│       ├── portfolio-management/  # Risk rules, position sizing
+│       │   ├── SKILL.md
+│       │   ├── references/        # risk-rules.md, portfolio-schema.md
+│       │   └── scripts/           # calculate_position_size.py, check_risk_limits.py
+│       └── trading-orchestrator/  # Cycle coordination
+│           ├── SKILL.md
+│           ├── references/        # agent-roles.md, decision-framework.md, cycle-template.md
+│           └── scripts/           # run_trading_cycle.py, generate_daily_report.py
+├── .mcp.json                      # MCP server config + credentials (GITIGNORED)
+├── .mcp.json.example              # Template (safe to commit)
+├── CLAUDE.md                      # This file
+├── WALKTHROUGH.md                 # Full system explanation
 ├── mcp-servers/
-│   ├── shared/__init__.py    # Config, constants, risk limits
-│   ├── angel-one-mcp/        # Market data & orders
-│   ├── portfolio-db-mcp/     # Portfolio & risk management
-│   └── news-sentiment-mcp/   # News & sentiment
-├── data/                     # SQLite databases (auto-created)
-└── requirements.txt          # Python dependencies
+│   ├── shared/__init__.py         # Config, constants, risk limits
+│   ├── angel-one-mcp/server.py    # Market data & orders
+│   ├── portfolio-db-mcp/server.py # Portfolio & risk management
+│   └── news-sentiment-mcp/server.py # News & sentiment
+├── data/                          # SQLite databases (auto-created)
+├── test_servers.py                # MCP server verification script
+└── requirements.txt               # Python dependencies
 ```
+
+## Credentials
+Angel One credentials are stored in `.mcp.json` (gitignored, never committed):
+- `ANGEL_API_KEY` — API key from Angel One dashboard
+- `ANGEL_CLIENT_ID` — Your client ID
+- `ANGEL_PASSWORD` — Your trading password
+- `ANGEL_TOTP_SECRET` — TOTP secret from 2FA QR code
 
 ## Getting Started
 1. `pip install -r requirements.txt`
-2. Fill in `.mcp.json` env vars with Angel One credentials
-3. Run `claude` in this directory
-4. Call `initialize_portfolio` to set up the database
-5. Call `login_session` to authenticate with Angel One
-6. Begin trading cycle
+2. Copy `.mcp.json.example` → `.mcp.json`, fill in Angel One credentials
+3. Run `python test_servers.py` to verify servers load
+4. Run `claude` in this directory
+5. Call `initialize_portfolio` to set up the database
+6. Call `login_session` to authenticate with Angel One
+7. Say "Run a trading cycle" — the orchestrator takes over
+
+## GitHub
+Repository: https://github.com/iriteshreddy-dot/trading-agent
